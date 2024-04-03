@@ -117,12 +117,30 @@
             recognition.start();
         }
 
+        // TTS 추가
         function textToSpeech(message){
             const speech = new SpeechSynthesisUtterance();
             speech.text = message;
             window.speechSynthesis.speak(speech);
         }
 
+        function PhonetextToSpeech (message){
+            // html 태그 제거
+
+            // HTML 태그를 제거하기 위해 임시적으로 DOM을 생성합니다.
+            const temporaryElement = $('<div></div>').html(message);
+
+            // p 태그를 모두 찾아내어 제거합니다.
+            temporaryElement.find('p').remove();
+
+            // br 태그를 모두 찾아내어 제거합니다.
+            temporaryElement.find('br').remove();
+
+            // innerText를 사용하여 HTML 태그를 제거한 텍스트를 가져옵니다.
+            const cleanedMessage = temporaryElement.text();
+
+            textToSpeech(message)
+        }
 
         // 메세지를 화면에 추가
         function appendMessage(sender, message) {
@@ -130,8 +148,8 @@
             chatContainer.append(messageElement);
             chatContainer.scrollTop(chatContainer.prop('scrollHeight'));
 
-            if(ttsEnabled) {
-                textToSpeech(message);
+            if (ttsEnabled) {
+                PhonetextToSpeech(message);
             }
         }
 
@@ -153,10 +171,11 @@
             for (const category of data.level1) {
                 if (found)
                     break;
+                // if (userMessage.includes(category.name)) {
                 if (category.name.includes(userMessage)) {
                     found = true;
                     appendMessage('Chatbot', category.message);
-                    showSubCategories(category); // 수정된 부분
+                    showSubCategories(category);
                     CATEGORY_STATUS = 2;
                     level1_category = category.number;
                 } else {
@@ -167,7 +186,7 @@
                             found = true;
                             appendMessage('Chatbot', subCategory.message);
                             showSubCategories(category)
-                        } else if (userMessage === '상위메뉴' || userMessage === '상위 메뉴') {
+                        } else if (userMessage === '상위 메뉴' || userMessage === '상위메뉴') {
                             found = true;
                             showWelcomeMessage();
                             break;
@@ -227,12 +246,12 @@
             // 키워드 검색 방식
             found = findByKeyword(found, userMessage);
 
-            // 메뉴 번호 검색 방식
-            if (!found){
+            /// 메뉴 번호 검색 방식
+            if (!found) {
                 findByNumber(userMessage);
             }
 
-            // if (!found) {
+            // if (found) {
             //     // 다른 키워드에 대한 기본 응답
             //     appendMessage('Chatbot', '죄송합니다. 입력하신 정보로는 처리할 수 없습니다.<br>');
             // }
@@ -255,13 +274,11 @@
                 // chatContainer에 하나의 메세지로 갱신한다.
                 chatContainer.append(message);
                 // 하나의 메세지에 대해 음성 서비스를 제공한다.
-                if(ttsEnabled) {
-                    textToSpeech(message);
+                if (ttsEnabled) {
+                    PhonetextToSpeech(message);
                 }
                 chatContainer.scrollTop(chatContainer.prop('scrollHeight'));
             }, 500);
-
-
         }
         // 초기 환영 메시지 출력
         showWelcomeMessage();
@@ -271,8 +288,7 @@
         let userInput = $('<input type="text" id="user-input" placeholder="메시지를 입력하세요">').appendTo(inputContainer);
         let sendBtn = $('<button id="send-btn">전송</button>').appendTo(inputContainer);
 
-        let speechBtn = $('<button id="speech-btn">음성 입력</button>').appendTo(inputContainer); // 음성 입력 버튼 추가
-
+        let speechBtn = $('<button id="speech-btn">음성 입력</butoton>').appendTo(inputContainer); // 음성 입력 버튼 추가
 
         // 음성 출력 기능 On/Off 라디오 버튼 생성
         let ttsCheckboxContainer = $('<div id="tts-checkbox-container"></div>').appendTo(inputContainer);
@@ -303,7 +319,6 @@
             ttsEnabled = $('#tts-checkbox').prop('checked');
             console.log('TTS Enabled:', ttsEnabled);
         });
-
     });
 </script>
 </body>
